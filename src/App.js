@@ -10,6 +10,7 @@ const API_KEY = '1n2REiNzTr7sAvwegSmdAntYnkyOVejNcUDPhCPHG-Q'
 export default function App() {
   const [images, setImages] = useState([])
   const [page, setPage] = useState(1)
+  const [query, setQuery] = useState('')
   useEffect(() => {
     getPhotos()
   }, [page])
@@ -21,12 +22,29 @@ export default function App() {
         setImages((images) => [...images, ...data])
       })
   }
+  function searchPhotos(event) {
+    event.preventDefault()
+    fetch(
+      `https://api.unsplash.com/search/photos?client_id=${API_KEY}&page=${page}&query=${query}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setImages((images) => [...data.results])
+      })
+      .catch((err) => console.log(err))
+  }
+
   return (
     <div className="app">
       <h1>Unsplash Image Gallery!</h1>
 
-      <form>
-        <input type="text" placeholder="Search Unsplash..." />
+      <form onSubmit={searchPhotos}>
+        <input
+          type="text"
+          placeholder="Search Unsplash..."
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
         <button>Search</button>
       </form>
 
