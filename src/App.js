@@ -4,21 +4,23 @@ import './App.css'
 // 1n2REiNzTr7sAvwegSmdAntYnkyOVejNcUDPhCPHG-Q
 
 // json format te r
-
-const url =
-  'https://api.unsplash.com/photos?client_id=1n2REiNzTr7sAvwegSmdAntYnkyOVejNcUDPhCPHG-Q'
+import InfiniteScroll from 'react-infinite-scroll-component'
+const API_KEY = '1n2REiNzTr7sAvwegSmdAntYnkyOVejNcUDPhCPHG-Q'
 
 export default function App() {
   const [images, setImages] = useState([])
+  const [page, setPage] = useState(1)
   useEffect(() => {
-    fetch(url)
+    getPhotos()
+  }, [page])
+
+  function getPhotos() {
+    fetch(`https://api.unsplash.com/photos?client_id=${API_KEY}&page=${page}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
-        setImages(data)
+        setImages((images) => [...images, ...data])
       })
-  }, [])
-
+  }
   return (
     <div className="app">
       <h1>Unsplash Image Gallery!</h1>
@@ -28,13 +30,26 @@ export default function App() {
         <button>Search</button>
       </form>
 
-      <div className="image-grid">
-        {images.map((image, index) => (
-          <div className="image" key={index}>
-            <img src={image.urls.thumb} alt={image.alt_description} />
-          </div>
-        ))}
-      </div>
+      <InfiniteScroll
+        dataLength={images.length}
+        next={() => setPage((page) => page + 1)}
+        hasMore={true}
+        loader={<h4>Loading...</h4>}
+      >
+        <div className="image-grid">
+          {images.map((image, index) => (
+            <div className="image" key={index}>
+              <img src={image.urls.small} alt={image.alt_description} />
+            </div>
+          ))}
+        </div>
+      </InfiniteScroll>
     </div>
   )
 }
+
+// dataLength={images.length}
+// next={() => {
+//   setPage((page) => page + 1)
+//   getPhotos()
+// }}
